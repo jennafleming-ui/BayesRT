@@ -1,157 +1,415 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>BayesRT Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BayesRT - Real-Time Motorsports Intelligence</title>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-green: #00ff88;
+            --primary-cyan: #00ccff;
+            --dark-bg: #0a0a0f;
+            --panel-bg: #1a1a2e;
+            --panel-border: #2a2a3e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --warning-red: #ff3366;
+            --warning-yellow: #ffaa00;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-            color: #ffffff;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
             min-height: 100vh;
         }
-        .container { max-width: 1800px; margin: 0 auto; }
-        h1 {
-            text-align: center;
-            color: #00ff88;
-            text-shadow: 0 0 20px #00ff88;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            animation: glow 2s ease-in-out infinite alternate;
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
         }
-        @keyframes glow {
-            from { text-shadow: 0 0 20px #00ff88, 0 0 30px #00ff88; }
-            to { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88, 0 0 50px #00ff88; }
+        
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
         }
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-        .controls {
-            text-align: center;
-            margin: 20px 0;
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
             padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
+            position: relative;
+            z-index: 1;
         }
+        
+        /* Header Section */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);
+        }
+        
+        h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            from { 
+                filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.5));
+            }
+            to { 
+                filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.8));
+            }
+        }
+        
+        .subtitle {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        
+        /* Control Panel */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
         button {
-            background: linear-gradient(135deg, #00ff88, #00ccff);
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-cyan));
             color: #000;
             border: none;
             padding: 15px 40px;
             font-size: 16px;
-            border-radius: 25px;
+            font-weight: 700;
+            border-radius: 50px;
             cursor: pointer;
-            margin: 0 10px;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,255,136,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+            position: relative;
+            overflow: hidden;
         }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,255,136,0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 255, 136, 0.5);
         }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
         #connection-status {
-            display: inline-block;
-            margin-left: 20px;
-            padding: 10px 25px;
-            border-radius: 20px;
-            background: #333;
-            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 30px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--panel-border);
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s;
         }
+        
+        #connection-status::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--warning-red);
+            box-shadow: 0 0 10px var(--warning-red);
+            animation: pulse 2s infinite;
+        }
+        
+        #connection-status.connected::before {
+            background: var(--primary-green);
+            box-shadow: 0 0 15px var(--primary-green);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Grid Layout */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 20px;
+            gap: 25px;
             margin-top: 30px;
         }
+        
+        /* Panel Styling */
         .panel {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border: 2px solid #00ff88;
-            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 22, 38, 0.8));
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--panel-border);
+            border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,255,136,0.1);
-            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-cyan));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s;
+        }
+        
+        .panel:hover::before {
+            transform: scaleX(1);
+        }
+        
         .panel:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0,255,136,0.2);
+            box-shadow: 0 12px 40px rgba(0, 255, 136, 0.2);
+            border-color: var(--primary-green);
         }
+        
         .panel h2 {
-            margin-top: 0;
-            color: #00ccff;
-            border-bottom: 3px solid #00ccff;
+            font-family: 'Orbitron', monospace;
+            margin: 0 0 20px 0;
+            color: var(--primary-cyan);
+            font-size: 1.4em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             padding-bottom: 12px;
-            font-size: 1.5em;
-            text-shadow: 0 0 10px #00ccff;
+            border-bottom: 2px solid var(--panel-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        
+        /* Metric Styling */
         .metric {
             margin: 20px 0;
-            padding: 15px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            border-left: 4px solid #00ff88;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-green);
+            transition: all 0.3s;
         }
+        
+        .metric:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-left-color: var(--primary-cyan);
+        }
+        
         .metric-label {
-            color: #aaa;
-            font-size: 0.9em;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-secondary);
+            font-size: 0.85em;
             margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
+        
         .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #00ff88;
-            text-shadow: 0 0 10px #00ff88;
+            font-family: 'Orbitron', monospace;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--primary-green);
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            transition: all 0.3s;
         }
+        
+        .metric-value.flash {
+            animation: flashUpdate 0.5s;
+        }
+        
+        @keyframes flashUpdate {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        
+        /* Confidence Bar */
         .confidence-bar {
             width: 100%;
-            height: 25px;
-            background: rgba(255,255,255,0.1);
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             overflow: hidden;
-            margin-top: 10px;
+            margin-top: 12px;
+            border: 1px solid var(--panel-border);
+            position: relative;
         }
+        
+        .confidence-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
         .confidence-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff4444, #ffaa00, #00ff88);
-            transition: width 0.5s ease;
+            background: linear-gradient(90deg, var(--warning-red), var(--warning-yellow), var(--primary-green));
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 15px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
         }
+        
+        /* Race State Grid */
         .race-state-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metric-value {
+                font-size: 1.8em;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1> BayesRT AI Dashboard</h1>
-        <div class="subtitle">Real-Time Multi-Modal AI Strategy Platform</div>
-        
-        <div class="controls">
-            <button onclick="startDashboard()">▶ Start Live Feed</button>
-            <button onclick="stopDashboard()">⏸ Stop</button>
-            <span id="connection-status">● Disconnected</span>
-        </div>
+        <header>
+            <h1>🏎️ BayesRT</h1>
+            <div class="subtitle">Bayesian Real-Time Motorsports Intelligence</div>
+            
+            <div class="controls">
+                <button onclick="startDashboard()">▶ START LIVE FEED</button>
+                <button onclick="stopDashboard()">⏸ STOP</button>
+                <span id="connection-status">DISCONNECTED</span>
+            </div>
+        </header>
 
         <div class="grid">
-            <!-- RiskCalc Pro -->
+            <!-- RiskCalc Pro Panel -->
             <div class="panel">
-                <h2> RiskCalc Pro</h2>
+                <h2>⚠️ RISKCALC PRO</h2>
                 <div class="metric">
                     <div class="metric-label">Predicted Lap Time</div>
-                    <div class="metric-value" id="predicted-time">--</div>
+                    <div class="metric-value" id="predicted-time">--.-</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">95% Confidence Interval</div>
-                    <div id="confidence-range" style="font-size: 1.2em; color: #00ccff;">--</div>
+                    <div id="confidence-range" style="font-size: 1.3em; color: var(--primary-cyan); font-family: 'Orbitron', monospace;">-- to --</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Uncertainty Level</div>
@@ -161,16 +419,16 @@
                 </div>
             </div>
 
-            <!-- NeuroStrategy -->
+            <!-- NeuroStrategy Panel -->
             <div class="panel">
-                <h2> NeuroStrategy</h2>
+                <h2>🎯 NEUROSTRATEGY</h2>
                 <div class="metric">
                     <div class="metric-label">Recommended Action</div>
-                    <div class="metric-value" id="strategy-action" style="font-size: 1.4em;">--</div>
+                    <div class="metric-value" id="strategy-action" style="font-size: 1.5em;">--</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Expected Lap Time</div>
-                    <div id="strategy-time" style="font-size: 1.3em; color: #00ccff;">--</div>
+                    <div id="strategy-time" style="font-size: 1.4em; color: var(--primary-cyan); font-family: 'Orbitron', monospace;">--.-s</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Strategy Confidence</div>
@@ -180,58 +438,58 @@
                 </div>
             </div>
 
-            <!-- WeatherWise -->
+            <!-- WeatherWise Panel -->
             <div class="panel">
-                <h2> WeatherWise</h2>
+                <h2>🌤️ WEATHERWISE</h2>
                 <div class="metric">
-                    <div class="metric-label">Current Air Temperature</div>
-                    <div class="metric-value" id="air-temp">--</div>
+                    <div class="metric-label">Air Temperature</div>
+                    <div class="metric-value" id="air-temp">--°C</div>
                 </div>
                 <div class="metric">
-                    <div class="metric-label">Track Surface Temperature</div>
-                    <div id="track-temp" style="font-size: 1.3em; color: #00ccff;">--</div>
+                    <div class="metric-label">Track Surface Temp</div>
+                    <div id="track-temp" style="font-size: 1.4em; color: var(--primary-cyan); font-family: 'Orbitron', monospace;">--°C</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Rain Probability (30 min)</div>
-                    <div id="rain-prob" style="font-size: 1.3em; color: #00ccff;">--</div>
+                    <div id="rain-prob" style="font-size: 1.4em; color: var(--primary-cyan); font-family: 'Orbitron', monospace;">--%</div>
                 </div>
             </div>
 
-            <!-- CognitiveLoad -->
+            <!-- CognitiveLoad Panel -->
             <div class="panel">
-                <h2> CognitiveLoad Monitor</h2>
+                <h2>🧠 COGNITIVELOAD MONITOR</h2>
                 <div class="metric">
                     <div class="metric-label">Driver Cognitive Load</div>
-                    <div class="metric-value" id="cognitive-load">--</div>
+                    <div class="metric-value" id="cognitive-load">--%</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Status</div>
-                    <div id="cognitive-status" style="font-size: 1.3em;">
-                        <span id="status-text">Normal</span>
+                    <div id="cognitive-status" style="font-size: 1.3em; font-family: 'Orbitron', monospace;">
+                        <span id="status-text">STANDBY</span>
                     </div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Trend</div>
-                    <div id="cognitive-trend" style="font-size: 1.3em; color: #00ccff;">--</div>
+                    <div id="cognitive-trend" style="font-size: 1.3em; color: var(--primary-cyan); font-family: 'Orbitron', monospace;">--</div>
                 </div>
             </div>
         </div>
 
-        <!-- Race State -->
-        <div class="panel" style="margin-top: 20px;">
-            <h2> Current Race State</h2>
+        <!-- Race State Panel -->
+        <div class="panel" style="margin-top: 25px;">
+            <h2>📊 CURRENT RACE STATE</h2>
             <div class="race-state-grid">
                 <div class="metric">
                     <div class="metric-label">Current Lap</div>
-                    <div class="metric-value" id="current-lap" style="font-size: 1.5em;">--</div>
+                    <div class="metric-value" id="current-lap" style="font-size: 1.8em;">--</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Position</div>
-                    <div class="metric-value" id="position" style="font-size: 1.5em;">--</div>
+                    <div class="metric-value" id="position" style="font-size: 1.8em;">P-</div>
                 </div>
                 <div class="metric">
                     <div class="metric-label">Tire Age</div>
-                    <div class="metric-value" id="tire-age" style="font-size: 1.5em;">--</div>
+                    <div class="metric-value" id="tire-age" style="font-size: 1.8em;">-- laps</div>
                 </div>
             </div>
         </div>
@@ -241,75 +499,122 @@
         const socket = io();
         
         socket.on('connect', function() {
-            document.getElementById('connection-status').innerHTML = '● Connected';
-            document.getElementById('connection-status').style.background = '#00ff88';
-            document.getElementById('connection-status').style.color = '#000';
-            console.log('Connected');
+            const statusEl = document.getElementById('connection-status');
+            statusEl.textContent = 'CONNECTED';
+            statusEl.classList.add('connected');
+            console.log('✅ WebSocket Connected');
         });
         
         socket.on('disconnect', function() {
-            document.getElementById('connection-status').innerHTML = '● Disconnected';
-            document.getElementById('connection-status').style.background = '#ff4444';
-            document.getElementById('connection-status').style.color = '#fff';
+            const statusEl = document.getElementById('connection-status');
+            statusEl.textContent = 'DISCONNECTED';
+            statusEl.classList.remove('connected');
+            console.log('❌ WebSocket Disconnected');
         });
         
         socket.on('dashboard_update', function(data) {
+            console.log('📊 Dashboard Update:', data);
             updateDashboard(data);
         });
         
         function startDashboard() {
             socket.emit('start_dashboard');
+            console.log('▶ Starting dashboard...');
         }
         
         function stopDashboard() {
             socket.emit('stop_dashboard');
+            console.log('⏸ Stopping dashboard...');
+        }
+        
+        function flashElement(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.classList.add('flash');
+                setTimeout(() => el.classList.remove('flash'), 500);
+            }
         }
         
         function updateDashboard(data) {
+            if (!data) return;
+            
             // RiskCalc Pro
-            document.getElementById('predicted-time').textContent = 
-                data.risk_calc.predicted_lap_time.toFixed(3) + 's';
-            document.getElementById('confidence-range').textContent = 
-                `${data.risk_calc.confidence_95_lower.toFixed(2)}s - ${data.risk_calc.confidence_95_upper.toFixed(2)}s`;
-            document.getElementById('uncertainty-bar').style.width = 
-                (data.risk_calc.uncertainty * 100) + '%';
+            if (data.risk_calc) {
+                const predTime = document.getElementById('predicted-time');
+                predTime.textContent = data.risk_calc.predicted_lap_time.toFixed(3) + 's';
+                flashElement('predicted-time');
+                
+                document.getElementById('confidence-range').textContent = 
+                    `${data.risk_calc.confidence_95_lower.toFixed(2)}s - ${data.risk_calc.confidence_95_upper.toFixed(2)}s`;
+                
+                const uncertaintyPercent = Math.min(data.risk_calc.uncertainty * 100, 100);
+                document.getElementById('uncertainty-bar').style.width = uncertaintyPercent + '%';
+            }
             
             // NeuroStrategy
-            const strategy = data.strategy.top_strategy;
-            if (strategy.pit_lap) {
-                document.getElementById('strategy-action').textContent = 
-                    `Pit on lap ${strategy.pit_lap} (${strategy.compound})`;
-            } else {
-                document.getElementById('strategy-action').textContent = 'Stay Out';
+            if (data.strategy && data.strategy.top_strategy) {
+                const strategy = data.strategy.top_strategy;
+                const actionText = strategy.pit_lap 
+                    ? `PIT LAP ${strategy.pit_lap} (${strategy.compound.toUpperCase()})`
+                    : 'STAY OUT';
+                    
+                document.getElementById('strategy-action').textContent = actionText;
+                flashElement('strategy-action');
+                
+                document.getElementById('strategy-time').textContent = 
+                    strategy.expected_time.toFixed(2) + 's avg';
+                    
+                const confidencePercent = (strategy.confidence * 100);
+                document.getElementById('strategy-confidence-bar').style.width = confidencePercent + '%';
             }
-            document.getElementById('strategy-time').textContent = 
-                strategy.expected_time.toFixed(2) + 's avg';
-            document.getElementById('strategy-confidence-bar').style.width = 
-                (strategy.confidence * 100) + '%';
             
             // WeatherWise
-            document.getElementById('air-temp').textContent = 
-                data.weather.current_temp.toFixed(1) + '°C';
-            document.getElementById('track-temp').textContent = 
-                data.weather.track_temp.toFixed(1) + '°C';
-            document.getElementById('rain-prob').textContent = 
-                (data.weather.rain_probability * 100).toFixed(0) + '%';
+            if (data.weather) {
+                document.getElementById('air-temp').textContent = 
+                    data.weather.current_temp.toFixed(1) + '°C';
+                flashElement('air-temp');
+                
+                document.getElementById('track-temp').textContent = 
+                    data.weather.track_temp.toFixed(1) + '°C';
+                    
+                document.getElementById('rain-prob').textContent = 
+                    (data.weather.rain_probability * 100).toFixed(0) + '%';
+            }
             
             // CognitiveLoad
-            document.getElementById('cognitive-load').textContent = 
-                (data.cognitive.load_level * 100).toFixed(0) + '%';
-            document.getElementById('status-text').textContent = 
-                data.cognitive.status.charAt(0).toUpperCase() + data.cognitive.status.slice(1);
-            document.getElementById('cognitive-trend').textContent = 
-                data.cognitive.trend.charAt(0).toUpperCase() + data.cognitive.trend.slice(1);
+            if (data.cognitive) {
+                document.getElementById('cognitive-load').textContent = 
+                    (data.cognitive.load_level * 100).toFixed(0) + '%';
+                flashElement('cognitive-load');
+                
+                const statusText = data.cognitive.status.toUpperCase();
+                document.getElementById('status-text').textContent = statusText;
+                
+                // Color-code status
+                const statusEl = document.getElementById('cognitive-status');
+                if (statusText === 'HIGH' || statusText === 'CRITICAL') {
+                    statusEl.style.color = 'var(--warning-red)';
+                } else if (statusText === 'ELEVATED') {
+                    statusEl.style.color = 'var(--warning-yellow)';
+                } else {
+                    statusEl.style.color = 'var(--primary-green)';
+                }
+                
+                document.getElementById('cognitive-trend').textContent = 
+                    data.cognitive.trend.toUpperCase();
+            }
             
             // Race State
-            document.getElementById('current-lap').textContent = 
-                `${data.race_state.current_lap}/50`;
-            document.getElementById('position').textContent = 
-                `P${data.race_state.position}`;
-            document.getElementById('tire-age').textContent = 
-                `${data.race_state.tire_age} laps`;
+            if (data.race_state) {
+                document.getElementById('current-lap').textContent = 
+                    `${data.race_state.current_lap}/50`;
+                    
+                document.getElementById('position').textContent = 
+                    `P${data.race_state.position}`;
+                    
+                document.getElementById('tire-age').textContent = 
+                    `${data.race_state.tire_age} laps`;
+            }
         }
     </script>
 </body>
