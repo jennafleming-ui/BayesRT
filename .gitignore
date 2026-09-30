@@ -29,3 +29,13 @@ instance/
 
 # Environment variables
 .env
+
+# FastF1 cache (regenerated on demand; do not commit — large binary blobs)
+data/cache/
+*.ff1pkl
+*.sqlite
+
+# Trained model binaries are regenerable from the training scripts.
+# Keep them out of git; ship them via releases/artifacts instead.
+# (Comment the next line out if you deliberately want to version a model.)
+# models/*.keras

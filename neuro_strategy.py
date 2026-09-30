@@ -91,8 +91,9 @@ class NeuroStrategy:
             lap_times.append(lap_time)
             total_time += lap_time
             tire_age += 1
-        
-        avg_lap_time = np.mean(lap_times)
+
+        # Guard the race-end edge case where no green laps remain to average.
+        avg_lap_time = float(np.mean(lap_times)) if lap_times else self.base_lap_times[current_compound]
         tire_life_score = tire_age / 30.0
         
         laps_to_decision = (pit_lap - current_lap) if pit_lap else (total_laps - current_lap)

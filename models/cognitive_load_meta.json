@@ -1,0 +1,1 @@
+{"features": ["lap_time_cv", "performance_trend", "spike_frequency"], "weights": {"lap_time_cv": 0.4, "performance_trend": 0.3, "spike_frequency": 0.3}, "min_laps": 5}

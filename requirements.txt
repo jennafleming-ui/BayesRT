@@ -1,0 +1,31 @@
+# BayesRT dependencies
+# Python 3.9+ (developed on 3.9). Pinned to the versions this project was built against.
+#
+# NOTE on TensorFlow: tensorflow-probability 0.25.0 pairs with TensorFlow 2.18.x.
+# On Apple Silicon, if plain `tensorflow` fails to import, use the two macOS
+# packages noted below instead (comment/uncomment as needed).
+
+# --- Core numerics / data ---
+numpy==2.0.2
+pandas==2.3.3
+scipy==1.13.1
+scikit-learn==1.6.1
+joblib==1.5.3
+
+# --- Deep learning / uncertainty ---
+tensorflow==2.18.0
+tensorflow-probability==0.25.0
+# Apple Silicon alternative to `tensorflow` above:
+# tensorflow-macos==2.18.0
+# tensorflow-metal==1.2.0   # optional GPU acceleration
+
+# --- Web dashboard ---
+flask==3.1.2
+flask-socketio==5.6.0
+flask-cors==6.0.2
+
+# --- F1 data ---
+fastf1==3.7.0
+
+# --- Plotting (optional; used by analysis notebooks/scripts) ---
+matplotlib==3.9.4

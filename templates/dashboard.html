@@ -390,8 +390,9 @@
     <div class="container">
         <header>
             <h1>🏎️ BayesRT</h1>
-            <div class="subtitle">Bayesian Real-Time Motorsports Intelligence</div>
-            
+            <div class="subtitle">MC-Dropout Real-Time Motorsports Intelligence</div>
+            <div class="subtitle" id="data-source" style="font-size:0.8em;opacity:0.7;"></div>
+
             <div class="controls">
                 <button onclick="startDashboard()">▶ START LIVE FEED</button>
                 <button onclick="stopDashboard()">⏸ STOP</button>
@@ -513,6 +514,10 @@
         });
         
         socket.on('dashboard_update', function(data) {
+            if (data.data_source) {
+                const srcEl = document.getElementById('data-source');
+                if (srcEl) srcEl.textContent = data.data_source;
+            }
             console.log('📊 Dashboard Update:', data);
             updateDashboard(data);
         });
@@ -606,8 +611,8 @@
             
             // Race State
             if (data.race_state) {
-                document.getElementById('current-lap').textContent = 
-                    `${data.race_state.current_lap}/50`;
+                document.getElementById('current-lap').textContent =
+                    `${data.race_state.current_lap}/${data.race_state.total_laps || 50}`;
                     
                 document.getElementById('position').textContent = 
                     `P${data.race_state.position}`;

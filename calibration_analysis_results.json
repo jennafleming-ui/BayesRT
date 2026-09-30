@@ -1,0 +1,90 @@
+{
+  "calibration_curve": [
+    {
+      "nominal": 0.5,
+      "empirical": 0.7626953125,
+      "mean_width": 2.096644639968872
+    },
+    {
+      "nominal": 0.68,
+      "empirical": 0.8701171875,
+      "mean_width": 3.0920844078063965
+    },
+    {
+      "nominal": 0.8,
+      "empirical": 0.9130859375,
+      "mean_width": 3.9879796504974365
+    },
+    {
+      "nominal": 0.9,
+      "empirical": 0.9658203125,
+      "mean_width": 5.117181777954102
+    },
+    {
+      "nominal": 0.95,
+      "empirical": 0.9814453125,
+      "mean_width": 6.097067832946777
+    },
+    {
+      "nominal": 0.99,
+      "empirical": 0.9931640625,
+      "mean_width": 8.013288497924805
+    }
+  ],
+  "temporal_mae": 0.7738298277854918,
+  "conformal_comparison": {
+    "mae_eval": 0.8458695928874005,
+    "mc_dropout": {
+      "coverage": 0.9791271347248577,
+      "mean_width": 6.146592140197754
+    },
+    "split_conformal": {
+      "coverage": 0.920303605313093,
+      "width": 4.2614591305155205
+    },
+    "note": "eval half is the later, harder-to-predict portion of each test stint; split-conformal's i.i.d./exchangeability assumption is only approximate here since laps are temporally ordered."
+  },
+  "cv_leave_one_circuit_out": {
+    "per_circuit": [
+      {
+        "held_out": "Australia",
+        "n": 860,
+        "mae": 1.5171192958388218,
+        "rmse": 2.204703394573132,
+        "coverage": 0.9441860465116279
+      },
+      {
+        "held_out": "Bahrain",
+        "n": 1054,
+        "mae": 1.9714463159318665,
+        "rmse": 3.8506448857359454,
+        "coverage": 0.8937381404174574
+      },
+      {
+        "held_out": "Japan",
+        "n": 810,
+        "mae": 2.3357527805658034,
+        "rmse": 2.937942787362274,
+        "coverage": 0.6888888888888889
+      },
+      {
+        "held_out": "Monaco",
+        "n": 1172,
+        "mae": 3.3905986037530997,
+        "rmse": 4.096690603113116,
+        "coverage": 0.5511945392491467
+      },
+      {
+        "held_out": "Spain",
+        "n": 1216,
+        "mae": 3.244344433382938,
+        "rmse": 4.297446079055757,
+        "coverage": 0.631578947368421
+      }
+    ],
+    "mae_mean": 2.491852285894506,
+    "mae_std": 0.7237794148683214,
+    "coverage_mean": 0.7419173124871083,
+    "coverage_std": 0.15187096451612753
+  }
+}
